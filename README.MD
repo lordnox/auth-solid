@@ -1,3 +1,5 @@
+[![Preview](https://user-images.githubusercontent.com/91349014/208177929-07b93c18-b200-4bf9-8b69-008f0439c7b6.png)](https://user-images.githubusercontent.com/91349014/208177946-f24b8797-e9c5-42c3-bc2f-02770734b18f.mp4)
+
 ## Note
 
 This isn't published on npm yet, its just posted in here so that next-auth creators can add it to their `frameworks` list and publish it under the `@auth/` org.
