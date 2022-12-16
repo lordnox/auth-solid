@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "esnext",
+    "newLine": "LF",
+    "moduleResolution": "node",
+    "strict": true,
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
+    "outDir": "./dist",
+    "module": "esnext",
+    "types": ["node", "vite/client"]
+  },
+  "include": ["./src"],
+  "exclude": ["node_modules", "dist"]
+}
