@@ -32,13 +32,10 @@ export GITHUB_ID=your-github-id
 export GITHUB_SECRET=your-github-secret
 ```
 
-Now create a file called `routes/api/auth/[...solidauth].ts` with the following content:
-
 ```ts
 // routes/api/auth/[...solidauth].ts
 import { type ISolidAuthHandlerOpts, SolidAuth } from "@auth/solid/handler";
 import GitHub from "@auth/core/providers/github";
-import { serverEnv } from "~/env/server";
 
 export const authOpts: ISolidAuthHandlerOpts = {
   providers: [
