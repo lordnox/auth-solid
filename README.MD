@@ -4,6 +4,19 @@
 
 This isn't published on npm yet, its just posted in here so that next-auth creators can add it to their `frameworks` list and publish it under the `@auth/` org.
 
+### But i want to use it now
+
+Np:
+
+```bash
+git clone git@github.com:OrJDev/auth-solid.git
+npm install
+cd dev
+npm run dev
+```
+
+Don't forget to modify the enviroment variables (auth secret, github id and github secret)
+
 ## What is this
 
 This is a SolidStart implementation of [next-auth](https://next-auth.js.org/).
