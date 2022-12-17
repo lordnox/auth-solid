@@ -13,6 +13,7 @@ git clone git@github.com:OrJDev/auth-solid.git
 cd auth-solid
 npm install
 cd dev
+npm install
 npm run dev
 ```
 
