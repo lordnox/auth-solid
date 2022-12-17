@@ -10,6 +10,7 @@ Np:
 
 ```bash
 git clone git@github.com:OrJDev/auth-solid.git
+cd auth-solid
 npm install
 cd dev
 npm run dev
