@@ -6,6 +6,12 @@ import GitHub from "@auth/core/providers/github";
 import { serverEnv } from "~/env/server";
 import { type APIEvent } from "solid-start";
 
+const getAuthURL = () => {
+  if (serverEnv.NEXTAUTH_URL) {
+    return serverEnv.NEXTAUTH_URL;
+  }
+  return `http://localhost:${process.env.PORT ?? 3000}`;
+};
 export const authOpts: ISolidAuthHandlerOpts = {
   providers: [
     GitHub({
@@ -13,7 +19,7 @@ export const authOpts: ISolidAuthHandlerOpts = {
       clientSecret: serverEnv.GITHUB_SECRET,
     }),
   ],
-  failureRedirect: "/",
+  failureRedirect: `${getAuthURL()}/`,
   debug: false,
 };
 

@@ -7,6 +7,7 @@ export const serverScheme = z.object({
   GITHUB_ID: z.string(),
   GITHUB_SECRET: z.string(),
   AUTH_SECRET: z.string(),
+  NEXTAUTH_URL: z.string().optional(),
 });
 
 export const clientScheme = z.object({
