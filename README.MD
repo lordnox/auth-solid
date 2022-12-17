@@ -1,4 +1,5 @@
 [![Preview](https://user-images.githubusercontent.com/91349014/208177929-07b93c18-b200-4bf9-8b69-008f0439c7b6.png)](https://user-images.githubusercontent.com/91349014/208177946-f24b8797-e9c5-42c3-bc2f-02770734b18f.mp4)
+[Try it yourself](https://auth-solid.vercel.app/)
 
 ## What is this
 
