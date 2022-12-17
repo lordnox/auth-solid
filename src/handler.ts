@@ -35,6 +35,8 @@ const getSetCookieCallback = (cook?: string | null): Cookie | undefined => {
   for (const cookName of [
     "__Secure-next-auth.session-token",
     "next-auth.session-token",
+    "next-auth.pkce.code_verifier",
+    "__Secure-next-auth.pkce.code_verifier",
   ]) {
     const temp = splitCookie.find((e) => e.startsWith(`${cookName}=`));
     if (temp) {
@@ -54,9 +56,9 @@ function SolidAuthHandler(prefix: string, authOptions: ISolidAuthHandlerOpts) {
       url.pathname.startsWith(prefix + "/")
     ) {
       const res = await AuthHandler(request, authOptions);
-      if (action === "callback") {
+      if (["callback", "signin", "signout"].includes(action)) {
         const parsedCookie = getSetCookieCallback(
-          res.headers.get("Set-Cookie")
+          res.clone().headers.get("Set-Cookie")
         );
         if (parsedCookie) {
           res.headers.set(

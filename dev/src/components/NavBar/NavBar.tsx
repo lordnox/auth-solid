@@ -13,14 +13,20 @@ const NavBar: Component<INavBarProps> = () => {
       <Switch
         fallback={
           <>
-            <p>Not logged in</p>
-            <span>|</span>
             <button
               onClick={() => {
                 return signIn("github");
               }}
             >
-              Sign in
+              Sign in with github
+            </button>
+            <span>|</span>
+            <button
+              onClick={() => {
+                return signIn("discord");
+              }}
+            >
+              Sign in with discord
             </button>
           </>
         }
