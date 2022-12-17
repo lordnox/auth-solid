@@ -4,7 +4,7 @@ import {
 } from "@solid-auth/next/handler";
 import GitHub from "@auth/core/providers/github";
 import { serverEnv } from "~/env/server";
-import { APIEvent } from "solid-start";
+import { type APIEvent } from "solid-start";
 
 export const authOpts: ISolidAuthHandlerOpts = {
   providers: [
