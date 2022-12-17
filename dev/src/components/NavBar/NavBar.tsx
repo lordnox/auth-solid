@@ -21,13 +21,6 @@ const NavBar: Component<INavBarProps> = () => {
               Sign in with github
             </button>
             <span>|</span>
-            <button
-              onClick={() => {
-                return signIn("discord");
-              }}
-            >
-              Sign in with discord
-            </button>
           </>
         }
       >
