@@ -1,5 +1,5 @@
 import { AuthHandler, type AuthAction, type AuthOptions } from "@auth/core";
-import { parseString, splitCookiesString } from "set-cookie-parser";
+import { Cookie, parseString, splitCookiesString } from "set-cookie-parser";
 import { serialize } from "cookie";
 
 export interface SoliduthOptions extends AuthOptions {
@@ -26,6 +26,24 @@ export type ISolidAuthHandlerOpts = AuthOptions & {
   failureRedirect?: string;
 };
 
+// currently multiple cookies are not supported, so we keep the next-auth.pkce.code_verifier cookie for now:
+// because it gets updated anyways
+// src: https://github.com/solidjs/solid-start/issues/293
+const getSetCookieCallback = (cook?: string | null): Cookie | undefined => {
+  if (!cook) return;
+  const splitCookie = splitCookiesString(cook);
+  for (const cookName of [
+    "__Secure-next-auth.session-token",
+    "next-auth.session-token",
+  ]) {
+    const temp = splitCookie.find((e) => e.startsWith(`${cookName}=`));
+    if (temp) {
+      return parseString(temp);
+    }
+  }
+  return parseString(splitCookie?.[0] ?? ""); // just return the first cookie if no session token is found
+};
+
 function SolidAuthHandler(prefix: string, authOptions: ISolidAuthHandlerOpts) {
   return async (event: APIEvent) => {
     const { request } = event;
@@ -37,20 +55,17 @@ function SolidAuthHandler(prefix: string, authOptions: ISolidAuthHandlerOpts) {
     ) {
       const res = await AuthHandler(request, authOptions);
       if (action === "callback") {
-        // currently multiple cookies are not supported, so we keep the next-auth.pkce.code_verifier cookie for now:
-        // because it gets updated anyways
-        // src: https://github.com/solidjs/solid-start/issues/293
-        const cook = res.headers.get("Set-Cookie");
-        if (cook) {
-          const cookName = "next-auth.session-token";
-          const sessToken = parseString(
-            splitCookiesString(cook).find((e) =>
-              e.startsWith(`${cookName}=`)
-            ) ?? ""
-          );
+        const parsedCookie = getSetCookieCallback(
+          res.headers.get("Set-Cookie")
+        );
+        if (parsedCookie) {
           res.headers.set(
             "Set-Cookie",
-            serialize(cookName, sessToken.value, sessToken as any)
+            serialize(
+              parsedCookie.name,
+              parsedCookie.value,
+              parsedCookie as any
+            )
           );
         }
       }
@@ -81,6 +96,7 @@ export function SolidAuth(options: SoliduthOptions) {
 }
 
 // unknown file extension error will be thrown when using "solid-start", so we copy what we actually need
+
 type APIEvent = any;
 
 const LocationHeader = "Location";

@@ -12,6 +12,7 @@ const getAuthURL = () => {
   }
   return `http://localhost:${process.env.PORT ?? 3000}`;
 };
+
 export const authOpts: ISolidAuthHandlerOpts = {
   providers: [
     GitHub({
