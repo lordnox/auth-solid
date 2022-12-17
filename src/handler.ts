@@ -1,19 +1,11 @@
 import { AuthHandler, type AuthAction, type AuthOptions } from "@auth/core";
-import {
-  isRedirectResponse,
-  json,
-  redirect,
-  type APIEvent,
-} from "solid-start/api";
-import parseCookie, {
-  parseString,
-  splitCookiesString,
-} from "set-cookie-parser";
+import { parseString, splitCookiesString } from "set-cookie-parser";
 import { serialize } from "cookie";
+
 export interface SoliduthOptions extends AuthOptions {
   /**
    * Defines the base path for the auth routes.
-   * @default '/auth'
+   * @default '/api/auth'
    */
   prefix?: string;
 }
@@ -44,21 +36,23 @@ function SolidAuthHandler(prefix: string, authOptions: ISolidAuthHandlerOpts) {
       url.pathname.startsWith(prefix + "/")
     ) {
       const res = await AuthHandler(request, authOptions);
-      if (action === "callback" && isRedirectResponse(res)) {
+      if (action === "callback") {
         // currently multiple cookies are not supported, so we keep the next-auth.pkce.code_verifier cookie for now:
         // because it gets updated anyways
         // src: https://github.com/solidjs/solid-start/issues/293
         const cook = res.headers.get("Set-Cookie");
-      if(cook){
-        const cookName = "next-auth.session-token";
-        const sessToken = parseString(
-          splitCookiesString(cook).find((e) => e.startsWith(`${cookName}=`)) ?? ""
-        );
-        res.headers.set(
-          "Set-Cookie",
-          serialize(cookName, sessToken.value, sessToken as any)
-        );
-      }
+        if (cook) {
+          const cookName = "next-auth.session-token";
+          const sessToken = parseString(
+            splitCookiesString(cook).find((e) =>
+              e.startsWith(`${cookName}=`)
+            ) ?? ""
+          );
+          res.headers.set(
+            "Set-Cookie",
+            serialize(cookName, sessToken.value, sessToken as any)
+          );
+        }
       }
       return res;
     }
@@ -84,4 +78,37 @@ export function SolidAuth(options: SoliduthOptions) {
     process.env.NODE_ENV !== "production"
   );
   return SolidAuthHandler(prefix, authOptions);
+}
+
+// unknown file extension error will be thrown when using "solid-start", so we copy what we actually need
+type APIEvent = any;
+
+const LocationHeader = "Location";
+function redirect(url: string, init: number | ResponseInit = 302): Response {
+  let responseInit = init;
+  if (typeof responseInit === "number") {
+    responseInit = { status: responseInit };
+  } else if (typeof responseInit.status === "undefined") {
+    responseInit.status = 302;
+  }
+
+  if (url === "") {
+    url = "/";
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    if (url.startsWith(".")) {
+      throw new Error("Relative URLs are not allowed in redirect");
+    }
+  }
+
+  let headers = new Headers(responseInit.headers);
+  headers.set(LocationHeader, url);
+
+  const response = new Response(null, {
+    ...responseInit,
+    headers: headers,
+  });
+
+  return response;
 }

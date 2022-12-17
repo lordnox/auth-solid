@@ -1,7 +1,7 @@
 import {
-  type ISolidAuthHandlerOpts,
   SolidAuth,
-} from "../../../../../src/handler";
+  type ISolidAuthHandlerOpts,
+} from "@solid-auth/next/handler";
 import GitHub from "@auth/core/providers/github";
 import { serverEnv } from "~/env/server";
 import { APIEvent } from "solid-start";
