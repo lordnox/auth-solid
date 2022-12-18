@@ -40,14 +40,11 @@ GITHUB_SECRET=your_github_oatuh_secret
 
 ```ts
 // routes/api/auth/[...solidauth].ts
-import {
-  SolidAuth,
-  type ISolidAuthHandlerOpts,
-} from "@solid-auth/next/handler";
+import { SolidAuth, type SolidAuthConfig } from "@solid-auth/next";
 import GitHub from "@auth/core/providers/github";
 import { type APIEvent } from "solid-start";
 
-export const authOpts: ISolidAuthHandlerOpts = {
+export const authOpts: SolidAuthConfig = {
   providers: [
     GitHub({
       clientId: process.env.GITHUB_ID,
@@ -57,20 +54,13 @@ export const authOpts: ISolidAuthHandlerOpts = {
   debug: false,
 };
 
-const handler = SolidAuth(authOpts);
-
-export function GET(event: APIEvent) {
-  return await handler(event);
-}
-export function POST(event: APIEvent) {
-  return await handler(event);
-}
+export const { GET, POST } = SolidAuth(authOpts);
 ```
 
 ## Signing in and out
 
 ```ts
-import { signIn, signOut } from "@solid-auth/next/utils";
+import { signIn, signOut } from "@solid-auth/next/client";
 const login = () => signIn("github");
 const logout = () => signOut();
 ```
@@ -78,7 +68,7 @@ const logout = () => signOut();
 ## Getting the current session
 
 ```ts
-import { getSession } from "@solid-auth/next/session";
+import { getSession } from "@solid-auth/next";
 import { createServerData$ } from "solid-start/server";
 import { authOpts } from "~/routes/api/auth/[...solidauth]";
 
@@ -91,7 +81,7 @@ export const useSession = () => {
   );
 };
 
-// useSession is a resource:
+// useSession returns a resource:
 const session = useSession();
 const loading = session.loading;
 const user = () => session()?.user;

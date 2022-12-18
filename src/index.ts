@@ -1,4 +1,9 @@
-import { AuthHandler, type AuthAction, type AuthOptions } from "@auth/core";
+import {
+  AuthHandler,
+  type AuthAction,
+  type AuthOptions,
+  type Session,
+} from "@auth/core";
 import { Cookie, parseString, splitCookiesString } from "set-cookie-parser";
 import { serialize } from "cookie";
 
@@ -19,10 +24,9 @@ const actions: AuthAction[] = [
   "callback",
   "verify-request",
   "error",
-  "_log",
 ];
 
-export type ISolidAuthHandlerOpts = AuthOptions & {
+export type SolidAuthConfig = AuthOptions & {
   failureRedirect?: string;
 };
 
@@ -46,7 +50,7 @@ const getSetCookieCallback = (cook?: string | null): Cookie | undefined => {
   return parseString(splitCookie?.[0] ?? ""); // just return the first cookie if no session token is found
 };
 
-function SolidAuthHandler(prefix: string, authOptions: ISolidAuthHandlerOpts) {
+function SolidAuthHandler(prefix: string, authOptions: SolidAuthConfig) {
   return async (event: APIEvent) => {
     const { request } = event;
     const url = new URL(request.url);
@@ -73,16 +77,6 @@ function SolidAuthHandler(prefix: string, authOptions: ISolidAuthHandlerOpts) {
       }
       return res;
     }
-    const h = authOptions.failureRedirect ?? "/";
-    const error = url.searchParams.get("error");
-    const error_description = url.searchParams.get("error_description");
-    const error_uri = url.searchParams.get("error_uri");
-    throw redirect(
-      `${h}?error=${error}&error_description=${error_description}&error_uri=${error_uri}`,
-      {
-        status: 302,
-      }
-    );
   };
 }
 
@@ -94,7 +88,39 @@ export function SolidAuth(options: SoliduthOptions) {
     process.env.VERCEL ??
     process.env.NODE_ENV !== "production"
   );
-  return SolidAuthHandler(prefix, authOptions);
+  const handler = SolidAuthHandler(prefix, authOptions);
+  return {
+    async GET(event: APIEvent) {
+      return await handler(event);
+    },
+    async POST(event: APIEvent) {
+      return await handler(event);
+    },
+  };
+}
+
+export type GetSessionResult = Promise<Session | null>;
+
+export async function getSession(
+  req: Request,
+  options: AuthOptions
+): GetSessionResult {
+  options.secret ??= process.env.AUTH_SECRET;
+  options.trustHost ??= true;
+
+  const url = new URL("/api/auth/session", req.url);
+  const response = await AuthHandler(
+    new Request(url, { headers: req.headers }),
+    options
+  );
+
+  const { status = 200 } = response;
+
+  const data = await response.json();
+
+  if (!data || !Object.keys(data).length) return null;
+  if (status === 200) return data;
+  throw new Error(data.message);
 }
 
 // unknown file extension error will be thrown when using "solid-start", so we copy what we actually need
